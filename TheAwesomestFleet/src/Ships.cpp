@@ -5,22 +5,28 @@
  *      Author: JonLN64Q
  */
 
-#include "Ships.h"
+#include "AllShips.h"
 #include <string>
 
 using namespace std;
 
-Ships::Ships() {}
-Ships::~Ships() {}
+Ships::Ships() {
+	this->typeIndex = -1;
+	this->cost = 0;
+	this->weight = 0;
+	this->energyConsumption = 0;
+}
 
-Ships::Ships(string name, int cost, int weight, int energyConsumption){
-	this->name = name;
+Ships::Ships(int typeIndex, int cost, int weight, int energyConsumption){
+	this->typeIndex = typeIndex;
 	this->cost = cost;
 	this->weight = weight;
 	this->energyConsumption = energyConsumption;
 }
 
-string Ships::getName(){	return name;}
+Ships::~Ships() {}
+
+int Ships::getTypeIndex(){	return typeIndex;}
 int Ships::getCost(){	return cost;}
 int Ships::getWeight(){	return weight;}
 int Ships::getEnergyConsumption(){	return energyConsumption;}
