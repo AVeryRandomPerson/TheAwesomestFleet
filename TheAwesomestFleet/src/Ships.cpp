@@ -17,8 +17,7 @@ Ships::Ships() {
 	this->energyConsumption = 0;
 }
 
-Ships::Ships(int typeIndex, int cost, int weight, int energyConsumption){
-	this->typeIndex = typeIndex;
+Ships::Ships(int cost, int weight, int energyConsumption){
 	this->cost = cost;
 	this->weight = weight;
 	this->energyConsumption = energyConsumption;
@@ -31,3 +30,13 @@ int Ships::getCost(){	return cost;}
 int Ships::getWeight(){	return weight;}
 int Ships::getEnergyConsumption(){	return energyConsumption;}
 
+void Ships::setTypeIndex(int typeIndex){this->typeIndex = typeIndex;}
+void Ships::setCost(int cost){this->cost = cost;}
+void Ships::setWeight(int weight){this->weight = weight;}
+void Ships::setEnergyConsumption(int energyConsumption){this->energyConsumption = energyConsumption;}
+
+void Ships::Initialize(int cost, int weight, int energyConsumption){
+	setCost(cost);
+	setWeight(weight);
+	setEnergyConsumption(energyConsumption);
+}
