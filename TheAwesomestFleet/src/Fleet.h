@@ -11,6 +11,7 @@
 #include <cmath>
 #include <map>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -81,7 +82,7 @@ class Ship {
 		void setTypeID(int newTypeID){this->typeID = newTypeID;}
 		void setID(int newID){this->ID = newID;}
 
-		void setTypeNameByID(int typeID){string pancakes = ID_TO_NAME_MAP[typeID];}
+		void setTypeNameByID(int typeID){this->typeName = ID_TO_NAME_MAP[typeID];}
 
 		int getShipClassIDByTypeID(int typeID){
 			// ClassID is taken as the tenth of any given typeID
@@ -168,7 +169,7 @@ class SolarSailShip : public Ship{
 				setAlive(false);
 			}
 		}
-		virtual ~SolarSailShip();
+		virtual ~SolarSailShip(){}
 
 		// #22
 		int getEnergyProduction(){return this->energyGenerated;}
@@ -233,12 +234,48 @@ class MedicShip : public Ship{
 				setAlive(false);
 			}
 		}
-		virtual ~MedicShip();
+		virtual ~MedicShip(){}
 
 	private:
 
 
 };
+
+class Fleet{
+	public:
+		Fleet(){
+
+		}
+		virtual ~Fleet(){}
+
+		// #1
+		int getWeight(){return this->weight;}
+		int getCost(){return this->cost;}
+		// #2
+		int getEnergyConsumption(){return this->energyConsumption;}
+		int getEnergyProduced(){return this->energyProduced;}
+
+		void setAllColonyShips(ColonyShip *allColonyShips, SolarSailShip *allSolarSailShips, MilitaryEscortShip *allMilitaryEscortShips, MedicShip *allMedicShips){
+			this->allColonyShips = allColonyShips;
+			this->allSolarSailShips = allSolarSailShips;
+			this->allMilitaryEscortShips = allMilitaryEscortShips;
+			this->allMedicShips = allMedicShips;
+		}
+
+	private:
+		ColonyShip *allColonyShips;
+		SolarSailShip *allSolarSailShips;
+		MilitaryEscortShip *allMilitaryEscortShips;
+		MedicShip *allMedicShips;
+
+		int weight;
+		int cost;
+		int energyConsumption;
+		int energyProduced;
+
+
+};
+
 
 #endif
 
