@@ -11,7 +11,6 @@
 #include <cmath>
 #include <map>
 #include <string>
-#include <vector>
 
 using namespace std;
 
@@ -250,10 +249,27 @@ class Fleet{
 
 		// #1
 		int getWeight(){return this->weight;}
+		// #4
 		int getCost(){return this->cost;}
 		// #2
 		int getEnergyConsumption(){return this->energyConsumption;}
+		// #5
 		int getEnergyProduced(){return this->energyProduced;}
+		// #3
+		int getColonistAmount(){return this->colonistAmount;}
+		// #6
+		int countProtectedShips(){
+			// Not 100% accurate atm.
+			// Needs to return the number of protected ship (Not number of ships that can be protected).
+			// * Min between nrProtected and Length(allColonyShips).
+			return this->nrProtected;}
+
+		// #7
+		bool hasMedic(){
+			// return if(size(allMedicShips) > 0);
+		}
+
+		string getCorperationName(){return this->corperationName;}
 
 		void setAllColonyShips(ColonyShip *allColonyShips, SolarSailShip *allSolarSailShips, MilitaryEscortShip *allMilitaryEscortShips, MedicShip *allMedicShips){
 			this->allColonyShips = allColonyShips;
@@ -272,8 +288,10 @@ class Fleet{
 		int cost;
 		int energyConsumption;
 		int energyProduced;
+		int nrProtected;
+		int colonistAmount;
 
-
+		string corperationName;
 };
 
 
