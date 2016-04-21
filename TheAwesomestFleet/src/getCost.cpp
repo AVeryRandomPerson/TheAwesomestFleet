@@ -23,12 +23,12 @@ int main(int argc, char *argv[])
 	shipCost.insert(TStrIntPair("Destroyer", 2000));
 	shipCost.insert(TStrIntPair("Medic", 1000));
 
-	string inputWeight;
+	string inputCost;
 	cout << "Enter a ship name to get its cost: ";
-	cin >> inputWeight;
+	cin >> inputCost;
 
     int x;
-	int intValue = shipCost[inputWeight];
+	int intValue = shipCost[inputCost];
 	if(intValue != 0){
 		// Show value
 		cout << "Cost for each ship: " << intValue;
