@@ -6,9 +6,7 @@
 
 #include "Fleet.h"
 
-#include <algorithm>
 #include <fstream>
-#include <iostream>
 
 using namespace std;
 
@@ -74,7 +72,7 @@ Fleet* userInterfaceCreateFleet(vector<ColonyShip *> * ptrAllColonyShips ,
 			int shipQty;
 			string decision;
 
-			cout << "Do you wish to pass your fleets with a file? (y/n)";
+			cout << "Do you want us to review your fleets through a file? (y/n)";
 			cin >> decision;
 
 			if(decision.at(0) == 'y'){
@@ -82,16 +80,22 @@ Fleet* userInterfaceCreateFleet(vector<ColonyShip *> * ptrAllColonyShips ,
 
 				readShipFile(ptrAllColonyShips,ptrAllSolarSailShips,ptrAllMilitaryEscortShips,ptrAllMedicShips,corporationName);
 				Fleet * fleet = new Fleet(ptrAllColonyShips,ptrAllSolarSailShips,ptrAllMilitaryEscortShips,ptrAllMedicShips,corporationName);
-				if(fleet->getCost()<= 10000){
-					cout << "[Announcement] Review Over. "<< "Cost of your fleet is : " << fleet->getCost();
-					cout << endl;
-					cout << "[Announcement] "<< "Good ! " << corporationName << " , your fleet is valid and verified." << endl;
+				fleet->validify();
+
+				cout << "ec ep" << fleet->getEnergyConsumption() << "," << fleet->getEnergyProduced();
+				cout << "[Announcement] Review Over. "<< "Cost of your fleet is : " << fleet->getCost() << endl;
+				cout << "[Announcement] Review Over. "<< "Your fleet has enough energy to run" << endl;
+
+				if(!fleet->isDisqualified()){
+					cout << "[Announcement] "<< "Good Luck! " << corporationName << " , your fleet is valid and verified." << endl;
 				}
 				else{
 					cout << endl;
-					cout << "[Announcement] "<< "Sorry commander. Unfortunately your fleet appears to be invalid ! " << corporationName << " Please check your fleet again. It must not cost more than 10,000." << endl;
+					cout << "[Announcement] "<< "Sorry commander. Unfortunately your fleet appears to be invalid ! " << endl;
+					cout << "[Announcement] " << corporationName << " Please check your fleet again. It must be within budget and have enough energy." << endl;
 					fleet->setDisqualified(true);
 				}
+				cout << endl << endl;
 				return fleet;
 			}
 			else{
@@ -151,28 +155,51 @@ Fleet* userInterfaceCreateFleet(vector<ColonyShip *> * ptrAllColonyShips ,
 				}
 				cout << endl;
 				Fleet * fleet = new Fleet(ptrAllColonyShips,ptrAllSolarSailShips,ptrAllMilitaryEscortShips,ptrAllMedicShips,corporationName);
-				if(fleet->getCost()<= 10000){
-					cout << "[Announcement] Review Over. "<< "Cost of your fleet is : " << fleet->getCost();
-					cout << endl;
-					cout << "[Announcement] "<< "Good ! " << corporationName << " , your fleet is valid and verified." << endl;
+				fleet->validify();
+				if(!fleet->isDisqualified()){
+					cout << "[Announcement] Review Over. "<< "Cost of your fleet is : " << fleet->getCost() << endl;
+					cout << "[Announcement] Review Over. "<< "Your fleet has enough energy to run" << endl;
+					cout << "[Announcement] "<< "Good Luck! " << corporationName << " , your fleet is valid and verified." << endl;
 				}
 				else{
 					cout << endl;
-					cout << "[Announcement] "<< "Sorry commander. Unfortunately your fleet appears to be invalid ! " << corporationName << " Please check your fleet again. It must not cost more than 10,000." << endl;
+					cout << "[Announcement] "<< "Sorry commander. Unfortunately your fleet appears to be invalid ! " << endl;
+					cout << "[Announcement] " << corporationName << " Please check your fleet again. It must be within budget and have enough energy." << endl;
 					fleet->setDisqualified(true);
 				}
+				cout << endl << endl;
 				return fleet;
 			}
+
 }
 
 Fleet* startRace(vector<Fleet *> allFleets){
-	for(unsigned int i =0; i<allFleets.size();i++){
-		allFleets.at(i)->launchFleet();
-	}
-	sort(allFleets.begin(),allFleets.end());
-	Fleet * temp;
+	vector<int> targetDeletions;
 
+	for(unsigned int i =0; i<allFleets.size();i++){
+		if(allFleets.at(i)->isDisqualified()){
+			cout << endl;
+			cout << allFleets.at(i)->getCorporationName() <<" is disqualified." << endl;
+			allFleets.erase(allFleets.begin()+i);
+			//targetDeletions.push_back(i);
+		}
+		else{
+			allFleets.at(i)->launchFleet();
+		}
+	}
+/*
+	for(unsigned int i=0; i<targetDeletions.size();i++){
+		//Fleet * temp = allFleets.at(targetDeletions.at(i));
+		cout << "Erasing : " << allFleets.at(targetDeletions.at(i))->getCorporationName();
+		allFleets.erase(allFleets.begin()+targetDeletions.at(i));
+		//delete temp;
+	}
+*/
+
+
+	// Bubble Sorting;
 	for(unsigned int h=0;h<(allFleets.size());h++){
+		Fleet * temp;
 		for(unsigned int i=0;i<(allFleets.size()- 1);i++){
 			if(allFleets.at(i)->getArrivalTime() > allFleets.at(i+1)->getArrivalTime()){
 				temp = allFleets.at(i);
@@ -181,7 +208,6 @@ Fleet* startRace(vector<Fleet *> allFleets){
 			}
 		}
 	}
-	delete temp;
 	cout << "================================================" << endl;
 	cout << "[Announcement] "<< allFleets.at(0)->getCorporationName() << " Has arrived at planet Gaia !" << endl;
 	for(unsigned int j =1; j < (allFleets.size()); j++){
@@ -190,26 +216,27 @@ Fleet* startRace(vector<Fleet *> allFleets){
 		if(allFleets.at(j)->getColonistAmount() > (inhabitantAmountNow)){
 			cout << "[Announcement] "<< allFleets.at(j)->getCorporationName() << " Has more population. They now own planet Gaia !" << endl;
 			cout << "[Announcement] " << "The current population to beat as of this announcement is : " << allFleets.at(j)->getColonistAmount() << endl;
-			allFleets.at(j-1)->setDisqualified(true);
+			allFleets.at(j-1)->setDefeated(true);
 		}
 		else{
 			cout << "[Announcement] "<< allFleets.at(j)->getCorporationName() << "'s population could not contest against " << allFleets.at(j-1)->getCorporationName() <<  endl ;
 			cout << "[Announcement] "<< allFleets.at(j-1)->getCorporationName() <<  " still owns planet Gaia and their population is growing !" << endl;
 			cout << "[Announcement] " << "The current population to beat as of this announcement is : " << inhabitantAmountNow << endl;
-			allFleets.at(j)->setDisqualified(true);
+			allFleets.at(j)->setDefeated(true);
 		}
 
 	}
 	cout << "[Announcement] All Contesting Fleets Have Arrived !" << endl;
 	Fleet * winner;
 	for(unsigned int k = 0; k < (allFleets.size()); k++){
-		if(!allFleets.at(k)->isDisqualified()){
+		if(!allFleets.at(k)->isDefeated()){
 			winner = allFleets.at(k);
 			break;
 		}
 	}
 	return winner;
 }
+
 
 int main() {
 	int nrFleets;
@@ -241,6 +268,8 @@ int main() {
 	cout << "Race is Starting !";
 	Fleet * winner = startRace(allFleets);
 	cout << "[ANNOUNCEMENT] Winner is :" << winner->getCorporationName() << " Congratulations !!!" << endl;
+
+	delete &allFleets;
 	return 0;
 }
 

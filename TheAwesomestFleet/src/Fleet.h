@@ -58,7 +58,7 @@ map<string,int> NAME_TO_ID_MAP = {
   {"Ferry",COLS_FERRY},
   {"Liner",COLS_LINER},
   {"Cloud",COLS_CLOUD},
-  {"Radiant",COLS_CLOUD},
+  {"Radiant",SOLSS_RADIANT},
   {"Ebulient",SOLSS_EBULIENT},
   {"Cruiser",MILES_CRUISER},
   {"Frigate",MILES_FRIGATE},
@@ -303,7 +303,16 @@ class Fleet{
 		}
 		virtual ~Fleet(){}
 
+		bool isDefeated(){return this->defeated;}
 		bool isDisqualified(){return this->disqualified;}
+		bool validify(){
+			bool hasEnoughEnergy = getEnergyConsumption() <= getEnergyProduced();
+			bool compliesBudget = getCost() <= 10000;
+
+			bool validity = hasEnoughEnergy && compliesBudget;
+			setDisqualified(!validity);
+			return validity;
+		}
 
 		// #7
 		bool hasMedic(){return this->isImmune;}
@@ -320,6 +329,8 @@ class Fleet{
 		int getColonistAmount(){return this->colonistAmount;}
 		// #6
 		int countProtectedShips(){	return this->nrProtected;}
+
+
 
 		float getArrivalTime(){return this->arrivalTime;}
 		void launchFleet(){
@@ -350,15 +361,22 @@ class Fleet{
 		// #12
 		vector<int> shipList(){return this->allShipIDs;}
 
+		void setDefeated(bool flag){this->defeated = flag;}
+
 		// #13
 		void destroyShip(ColonyShip * targetDestruct){
 			for(unsigned int i=0;i<allColonyShips->size();i++){
 				if(allColonyShips->at(i) == targetDestruct){
+					ColonyShip * temp = allColonyShips->at(i);
+
+
 					targetDestruct->setAlive(false);
 					this->weight -= targetDestruct->getWeight();
 					this->energyConsumption -= targetDestruct->getEnergyConsumption();
 					this->colonistAmount -= targetDestruct->getColonistAmount();
 					allColonyShips->erase(allColonyShips->begin()+i);
+
+					delete temp;
 					break;
 				}
 			}
@@ -459,8 +477,20 @@ class Fleet{
 				this->allShipIDs.push_back(allMedicShips->at(i)->getID());
 			}
 
+			//bubbleSorting
+			/*for(unsigned int h=0;h<(allColonyShips->size());h++){
+				ColonyShip * temp;
+				for(unsigned int i=0;i<(allColonyShips->size()- 1);i++){
+					if(allColonyShips->at(i)->getWeight() < allColonyShips->at(i+1)->getWeight()){
+						temp = allColonyShips->at(i);
+						allColonyShips->at(i) = allColonyShips->at(i+1);
+						allColonyShips->at(i+1) = temp;
+					}
+				}
+			}*/
 
 		}
+
 
 
 	private:
@@ -471,6 +501,7 @@ class Fleet{
 
 		bool isImmune = false;
 		bool disqualified = false;
+		bool defeated = false;
 
 		int weight;
 		int cost;
