@@ -9,8 +9,13 @@
 #define FLEET_H_
 
 #include <cmath>
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
+#include <iterator>
 #include <map>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -33,6 +38,8 @@ const int SOLSS_CLASS = 1;
 const int MILES_CLASS = 2;
 const int MEDS_CLASS =3;
 
+static int shipIDSeed = 0;
+
 map<int,string> ID_TO_NAME_MAP = {
   {NO_TYPE , "Undefined"},
   {COLS_FERRY , "Ferry"},
@@ -46,12 +53,40 @@ map<int,string> ID_TO_NAME_MAP = {
   {MEDS_MEDIC , "Medic"}
 };
 
+map<string,int> NAME_TO_ID_MAP = {
+  {"Undefined",NO_TYPE },
+  {"Ferry",COLS_FERRY},
+  {"Liner",COLS_LINER},
+  {"Cloud",COLS_CLOUD},
+  {"Radiant",COLS_CLOUD},
+  {"Ebulient",SOLSS_EBULIENT},
+  {"Cruiser",MILES_CRUISER},
+  {"Frigate",MILES_FRIGATE},
+  {"Destroyer",MILES_DESTROYER},
+  {"Medic",MEDS_MEDIC}
+};
+
+map<string,int> NAME_TO_CLASS_MAP = {
+  {"Undefined",NO_CLASS},
+  {"Ferry",COLS_CLASS},
+  {"Liner",COLS_CLASS},
+  {"Cloud",COLS_CLASS},
+  {"Radiant",SOLSS_CLASS},
+  {"Ebulient",SOLSS_CLASS},
+  { "Cruiser",MILES_CLASS},
+  {"Frigate",MILES_CLASS},
+  {"Destroyer",MILES_CLASS},
+  {"Medic",MEDS_CLASS}
+};
 
 
 class Ship {
 	public:
-
-		Ship(){}
+		Ship(int typeID){
+			setID();
+			setTypeID(typeID);
+			setTypeNameByID(typeID);
+		}
 		virtual ~Ship(){}
 
 		// Getters
@@ -61,12 +96,15 @@ class Ship {
 		// #21
 		bool isInfected(){return this->infected;}
 		bool isGuarded(){return this->guarded;}
-		bool isImmune(){return this->immune;}
 
+		// #16
 		int getCost(){return this->cost;}
+		// #15
 		int getWeight(){return this->weight;}
+		// #14
 		int getEnergyConsumption(){return this->energyConsumption;}
 		int getTypeID(){return this->typeID;}
+		int getID(){return this->ID;}
 
 		//	#17
 		string getTypeName(){return this->typeName;}
@@ -74,12 +112,15 @@ class Ship {
 		void setAlive(bool flag){ this->alive = flag;}
 		void setInfected(bool flag){this->infected =flag;}
 		void setGuarded(bool flag){this->guarded =flag;}
-		void setImmune(bool flag){this->immune=flag;}
 		void setCost(int newCost){this->cost = newCost;}
 		void setWeight(int newWeight){this->weight = newWeight;}
-		void setEnergyConsumption(int newConsumption){this->cost = newConsumption;}
+		void setEnergyConsumption(int newConsumption){this->energyConsumption = newConsumption;}
 		void setTypeID(int newTypeID){this->typeID = newTypeID;}
-		void setID(int newID){this->ID = newID;}
+		void setID(){
+			// New ID is given to the ship as defined is this function.
+			shipIDSeed++;
+			this->ID = shipIDSeed;
+		}
 
 		void setTypeNameByID(int typeID){this->typeName = ID_TO_NAME_MAP[typeID];}
 
@@ -92,7 +133,6 @@ class Ship {
 			setAlive(true);
 			setInfected(false);
 			setGuarded(false);
-			setImmune(false);
 			setCost(cost);
 			setWeight(weight);
 			setEnergyConsumption(energyConsumption);
@@ -104,7 +144,6 @@ class Ship {
 		bool alive = true;
 		bool infected = true;
 		bool guarded = false;
-		bool immune = false;
 
 		int cost;
 		int weight;
@@ -117,7 +156,9 @@ class Ship {
 
 class ColonyShip : public Ship{
 	public :
-		ColonyShip(int typeID){
+		ColonyShip(int typeID)
+		: Ship(typeID)
+		{
 			if(typeID == COLS_FERRY){
 				initializeShip(500,10,5);
 				setColonistAmount(100);
@@ -153,7 +194,9 @@ class ColonyShip : public Ship{
 
 class SolarSailShip : public Ship{
 	public :
-	SolarSailShip(int typeID){
+		SolarSailShip(int typeID)
+		: Ship(typeID)
+		{
 			if(typeID == SOLSS_RADIANT){
 				initializeShip(50,3,5);
 				setEnergyProduction(50);
@@ -184,17 +227,19 @@ class SolarSailShip : public Ship{
 
 class MilitaryEscortShip : public Ship{
 	public :
-	MilitaryEscortShip(int typeID){
+		MilitaryEscortShip(int typeID)
+		: Ship(typeID)
+		{
 			if(typeID == MILES_CRUISER){
-				initializeShip(50,3,5);
+				initializeShip(300,2,10);
 				setNrFighters(0);
 			}
 			else if(typeID == MILES_FRIGATE){
-				initializeShip(250,50,5);
+				initializeShip(1000,7,20);
 				setNrFighters(10);
 			}
 			else if(typeID == MILES_DESTROYER){
-				initializeShip(250,50,5);
+				initializeShip(2000,19,30);
 				setNrFighters(25);
 			}
 			else{
@@ -212,11 +257,11 @@ class MilitaryEscortShip : public Ship{
 
 	private:
 		int nrFighters;
-		int nrProtected;
+		float nrProtected;
 
 		void setNrFighters(int nrFighters){
 			this->nrFighters = nrFighters;
-			this->nrProtected = floor((this->nrFighters)/2) + 1;
+			this->nrProtected = ((this->nrFighters)/2) + 1;
 		}
 
 };
@@ -224,7 +269,9 @@ class MilitaryEscortShip : public Ship{
 
 class MedicShip : public Ship{
 	public :
-	MedicShip(int typeID){
+		MedicShip(int typeID)
+		: Ship(typeID)
+		{
 			if(typeID == MEDS_MEDIC){
 				initializeShip(1000,1,1);
 			}
@@ -242,10 +289,24 @@ class MedicShip : public Ship{
 
 class Fleet{
 	public:
-		Fleet(){
-
+		Fleet(vector<ColonyShip*> * allColonyShips,
+					vector<SolarSailShip*> * allSolarSailShips,
+					vector<MilitaryEscortShip*> * allMilitaryEscortShips,
+					vector<MedicShip*> * allMedicShips,
+					string CorporationName){
+			this->allColonyShips = allColonyShips;
+			this->allSolarSailShips = allSolarSailShips;
+			this->allMilitaryEscortShips = allMilitaryEscortShips;
+			this->allMedicShips = allMedicShips;
+			setCorporationName(CorporationName);
+			initialize();
 		}
 		virtual ~Fleet(){}
+
+		bool isDisqualified(){return this->disqualified;}
+
+		// #7
+		bool hasMedic(){return this->isImmune;}
 
 		// #1
 		int getWeight(){return this->weight;}
@@ -258,40 +319,179 @@ class Fleet{
 		// #3
 		int getColonistAmount(){return this->colonistAmount;}
 		// #6
-		int countProtectedShips(){
-			// Not 100% accurate atm.
-			// Needs to return the number of protected ship (Not number of ships that can be protected).
-			// * Min between nrProtected and Length(allColonyShips).
-			return this->nrProtected;}
+		int countProtectedShips(){	return this->nrProtected;}
 
-		// #7
-		bool hasMedic(){
-			// return if(size(allMedicShips) > 0);
+		float getArrivalTime(){return this->arrivalTime;}
+		void launchFleet(){
+			// First Half of Journey
+			float timeFirstHalf;
+			float timeSecondHalf;
+ 			timeFirstHalf = (3.3/2) * sqrt(getWeight());
+ 			// Second Half of Journey
+			applyInvasionAndInfection();
+			timeSecondHalf = (3.3/2) * sqrt(getWeight());
+			float arrivalTime = timeFirstHalf + timeSecondHalf;
+
+			setArrivalTime(arrivalTime);
 		}
 
-		string getCorperationName(){return this->corperationName;}
+		// #8
+		string getCorporationName(){return this->CorporationName;}
 
-		void setAllColonyShips(ColonyShip *allColonyShips, SolarSailShip *allSolarSailShips, MilitaryEscortShip *allMilitaryEscortShips, MedicShip *allMedicShips){
-			this->allColonyShips = allColonyShips;
-			this->allSolarSailShips = allSolarSailShips;
-			this->allMilitaryEscortShips = allMilitaryEscortShips;
-			this->allMedicShips = allMedicShips;
+		// #9
+		vector<ColonyShip *> protectedShips(){return this->allProtectedShips;}
+
+		// #10
+		vector<ColonyShip *> unprotectedShips(){return this->allUnprotectedShips;}
+
+		// #11
+		vector<ColonyShip *> colonyShips(){return *this->allColonyShips;}
+
+		// #12
+		vector<int> shipList(){return this->allShipIDs;}
+
+		// #13
+		void destroyShip(ColonyShip * targetDestruct){
+			for(unsigned int i=0;i<allColonyShips->size();i++){
+				if(allColonyShips->at(i) == targetDestruct){
+					targetDestruct->setAlive(false);
+					this->weight -= targetDestruct->getWeight();
+					this->energyConsumption -= targetDestruct->getEnergyConsumption();
+					this->colonistAmount -= targetDestruct->getColonistAmount();
+					allColonyShips->erase(allColonyShips->begin()+i);
+					break;
+				}
+			}
 		}
+		void destroyShip(int targetIndex){
+			allColonyShips->at(targetIndex)->setAlive(false);
+			this->weight -= allColonyShips->at(targetIndex)->getWeight();
+			this->energyConsumption -= allColonyShips->at(targetIndex)->getEnergyConsumption();
+			this->colonistAmount -= allColonyShips->at(targetIndex)->getColonistAmount();
+			allColonyShips->erase(allColonyShips->begin()+targetIndex);
+		}
+
+		void infectShip(int targetIndex){
+			allColonyShips->at(targetIndex)->setAlive(false);
+			this->colonistAmount -= allColonyShips->at(targetIndex)->getColonistAmount();
+		}
+
+		void applyInvasionAndInfection(){
+			srand(time(NULL));
+			int nrUnprotectedShips = this->allUnprotectedShips.size();
+			int nrTargetsRemaining = ceil((0.25*nrUnprotectedShips));
+
+			while(nrTargetsRemaining > 0 && nrUnprotectedShips > 0){
+				int targetIndex = rand() % (nrUnprotectedShips-1);
+				destroyShip(targetIndex);
+				nrTargetsRemaining--;
+				nrUnprotectedShips--;
+			}
+
+			if(!hasMedic() && allColonyShips->size() > 0){
+				int targetIndex = rand() % (this->allColonyShips->size() - 1);
+				infectShip(targetIndex);
+			}
+
+		}
+		void setArrivalTime(float arrivalTime){this->arrivalTime = arrivalTime;}
+		void setDisqualified(bool flag) { this->disqualified = flag;}
+	    bool operator < ( Fleet &nextFleet)
+	    {
+	    	cout << "Comparing ...";
+	    	cout << getArrivalTime() << endl;
+	        return (getArrivalTime() > nextFleet.getArrivalTime());
+	    }
+
+		void initialize(){
+			this->weight = 0;
+			this->cost = 0;
+			this->energyConsumption = 0;
+			this->energyProduced = 0;
+			this->nrFighters = 0;
+			this->nrProtected = 0;
+			this->colonistAmount = 0;
+			this->isImmune = (allMedicShips->size() > 0);
+
+			for(unsigned int i=0; i<allMilitaryEscortShips->size();i++){
+				this->weight += allMilitaryEscortShips->at(i)->getWeight();
+				this->cost += allMilitaryEscortShips->at(i)->getCost();
+				this->energyConsumption += allMilitaryEscortShips->at(i)->getEnergyConsumption();
+				this->nrFighters += allMilitaryEscortShips->at(i) ->getNrFighters();
+				this->nrProtected += allMilitaryEscortShips->at(i) ->getNrProtected(); // floor later;
+				this->allShipIDs.push_back(allMilitaryEscortShips->at(i)->getID());
+			}
+			this->nrProtected = floor(this->nrProtected);
+
+			int numberProtectable = this->nrProtected;
+			for(unsigned int i=0; i<allColonyShips->size();i++){
+				this->weight += allColonyShips->at(i)->getWeight();
+				this->cost += allColonyShips->at(i)->getCost();
+				this->energyConsumption += allColonyShips->at(i)->getEnergyConsumption();
+				this->colonistAmount += allColonyShips->at(i)->getColonistAmount();
+
+				if(numberProtectable > 0){
+					allColonyShips->at(i)->setGuarded(true);
+					this->protectedShipIDs.push_back(allColonyShips->at(i)->getID());
+					this->allProtectedShips.push_back(allColonyShips->at(i));
+					numberProtectable --;
+				}
+				else{
+					this->unprotectedShipIDs.push_back(allColonyShips->at(i)->getID());
+					this->allUnprotectedShips.push_back(allColonyShips->at(i));
+				}
+				this->colonyShipIDs.push_back(allColonyShips->at(i)->getID());
+				this->allShipIDs.push_back(allColonyShips->at(i)->getID());
+			}
+			for(unsigned int i=0; i<allSolarSailShips->size();i++){
+				this->weight += allSolarSailShips->at(i)->getWeight();
+				this->cost += allSolarSailShips->at(i)->getCost();
+				this->energyConsumption += allSolarSailShips->at(i)->getEnergyConsumption();
+				this->energyProduced += allSolarSailShips->at(i)->getEnergyProduction();
+				this->allShipIDs.push_back(allSolarSailShips->at(i)->getID());
+			}
+
+
+			for(unsigned int i=0; i<allMedicShips->size();i++){
+				this->weight += allMedicShips->at(i)->getWeight();
+				this->cost += allMedicShips->at(i)->getCost();
+				this->energyConsumption += allMedicShips->at(i)->getEnergyConsumption();
+				this->allShipIDs.push_back(allMedicShips->at(i)->getID());
+			}
+
+
+		}
+
 
 	private:
-		ColonyShip *allColonyShips;
-		SolarSailShip *allSolarSailShips;
-		MilitaryEscortShip *allMilitaryEscortShips;
-		MedicShip *allMedicShips;
+		vector<ColonyShip*> * allColonyShips;
+		vector<SolarSailShip*> * allSolarSailShips;
+		vector<MilitaryEscortShip*> * allMilitaryEscortShips;
+		vector<MedicShip*> * allMedicShips;
+
+		bool isImmune = false;
+		bool disqualified = false;
 
 		int weight;
 		int cost;
 		int energyConsumption;
 		int energyProduced;
-		int nrProtected;
+		int nrFighters;
 		int colonistAmount;
 
-		string corperationName;
+		float nrProtected;
+		float arrivalTime;
+
+		string CorporationName;
+
+		vector<int> protectedShipIDs;
+		vector<int> unprotectedShipIDs;
+		vector<int> colonyShipIDs;
+		vector<int> allShipIDs;
+		vector<ColonyShip *> allProtectedShips;
+		vector<ColonyShip *> allUnprotectedShips;
+
+		void setCorporationName(string  CorporationName){this->CorporationName = CorporationName;}
 };
 
 
