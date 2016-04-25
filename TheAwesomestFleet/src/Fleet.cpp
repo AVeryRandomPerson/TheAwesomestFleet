@@ -82,7 +82,6 @@ Fleet* userInterfaceCreateFleet(vector<ColonyShip *> * ptrAllColonyShips ,
 				Fleet * fleet = new Fleet(ptrAllColonyShips,ptrAllSolarSailShips,ptrAllMilitaryEscortShips,ptrAllMedicShips,corporationName);
 				fleet->validify();
 
-				cout << "ec ep" << fleet->getEnergyConsumption() << "," << fleet->getEnergyProduced();
 				cout << "[Announcement] Review Over. "<< "Cost of your fleet is : " << fleet->getCost() << endl;
 				cout << "[Announcement] Review Over. "<< "Your fleet has enough energy to run" << endl;
 
@@ -174,27 +173,25 @@ Fleet* userInterfaceCreateFleet(vector<ColonyShip *> * ptrAllColonyShips ,
 }
 
 Fleet* startRace(vector<Fleet *> allFleets){
-	vector<int> targetDeletions;
-
+	int nrDeleted = 0;
 	for(unsigned int i =0; i<allFleets.size();i++){
-		if(allFleets.at(i)->isDisqualified()){
-			cout << endl;
-			cout << allFleets.at(i)->getCorporationName() <<" is disqualified." << endl;
-			allFleets.erase(allFleets.begin()+i);
-			//targetDeletions.push_back(i);
+		cout << endl;
+		cout << allFleets.at(i -nrDeleted)->getCorporationName() << " is being checked." << endl;
+		if(allFleets.at(i - nrDeleted)->isDisqualified()){
+					cout << endl;
+					cout << allFleets.at(i - nrDeleted)->getCorporationName() <<" is disqualified." << endl;
+					allFleets.erase(allFleets.begin() + i - nrDeleted);
+					nrDeleted++;
+
 		}
 		else{
 			allFleets.at(i)->launchFleet();
 		}
 	}
-/*
-	for(unsigned int i=0; i<targetDeletions.size();i++){
-		//Fleet * temp = allFleets.at(targetDeletions.at(i));
-		cout << "Erasing : " << allFleets.at(targetDeletions.at(i))->getCorporationName();
-		allFleets.erase(allFleets.begin()+targetDeletions.at(i));
-		//delete temp;
-	}
-*/
+
+	for(unsigned int i =0; i<allFleets.size();i++){
+		cout << allFleets.at(i)->getCorporationName() << " is left." << endl;
+		}
 
 
 	// Bubble Sorting;
