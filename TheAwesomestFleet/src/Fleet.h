@@ -478,7 +478,7 @@ class Fleet{
 			}
 
 			//bubbleSorting
-			/*for(unsigned int h=0;h<(allColonyShips->size());h++){
+			for(unsigned int h=0;h<(allColonyShips->size());h++){
 				ColonyShip * temp;
 				for(unsigned int i=0;i<(allColonyShips->size()- 1);i++){
 					if(allColonyShips->at(i)->getWeight() < allColonyShips->at(i+1)->getWeight()){
@@ -487,7 +487,7 @@ class Fleet{
 						allColonyShips->at(i+1) = temp;
 					}
 				}
-			}*/
+			}
 
 		}
 

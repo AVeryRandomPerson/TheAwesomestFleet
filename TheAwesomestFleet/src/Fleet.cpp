@@ -10,6 +10,7 @@
 
 using namespace std;
 
+//Gets final population amount given the start time of arrival on planet, the final time of checking and the initial population
 int getGrownAmount(int baseAmount, float arrivalTime, float comparedTime){
 	float growthTime = floor(comparedTime - arrivalTime);
 	int population = baseAmount;
@@ -19,6 +20,8 @@ int getGrownAmount(int baseAmount, float arrivalTime, float comparedTime){
 	}
 	return population;
 }
+
+// Reads data from File and saves appropriately to vector data.
 void readShipFile(vector<ColonyShip *> * ptrAllColonyShips,
 		vector<SolarSailShip *> * ptrAllSolarSailShips,
 		vector<MilitaryEscortShip *> * ptrAllMilitaryEscortShips,
@@ -64,6 +67,7 @@ void readShipFile(vector<ColonyShip *> * ptrAllColonyShips,
     myfile.close();
 }
 
+// Interacts with user to create a Fleet.
 Fleet* userInterfaceCreateFleet(vector<ColonyShip *> * ptrAllColonyShips ,
 		vector<SolarSailShip *>  * ptrAllSolarSailShips,
 		vector<MilitaryEscortShip *>  * ptrAllMilitaryEscortShips,
@@ -172,25 +176,22 @@ Fleet* userInterfaceCreateFleet(vector<ColonyShip *> * ptrAllColonyShips ,
 
 }
 
+// Simulates the race, given all Fleets in the game.
 Fleet* startRace(vector<Fleet *> allFleets){
-	int nrDeleted = 0;
-	for(unsigned int i =0; i<allFleets.size();i++){
-		cout << endl;
-		cout << allFleets.at(i -nrDeleted)->getCorporationName() << " is being checked." << endl;
-		if(allFleets.at(i - nrDeleted)->isDisqualified()){
-					cout << endl;
-					cout << allFleets.at(i - nrDeleted)->getCorporationName() <<" is disqualified." << endl;
-					allFleets.erase(allFleets.begin() + i - nrDeleted);
-					nrDeleted++;
-
+	for(unsigned int i =0; i<allFleets.size();){
+		if(allFleets.at(i)->isDisqualified()){
+					cout << endl << "[Announcement] "<<allFleets.at(i)->getCorporationName() <<" is disqualified.";
+					allFleets.erase(allFleets.begin() + i);
+					cout << i;
 		}
 		else{
 			allFleets.at(i)->launchFleet();
+			i++;
 		}
 	}
-
+	cout << endl;
 	for(unsigned int i =0; i<allFleets.size();i++){
-		cout << allFleets.at(i)->getCorporationName() << " is left." << endl;
+		cout << "[Announcement] " << allFleets.at(i)->getCorporationName() << " is approved." << endl;
 		}
 
 
