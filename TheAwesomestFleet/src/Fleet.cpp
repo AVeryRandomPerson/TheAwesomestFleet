@@ -22,7 +22,7 @@ int getGrownAmount(int baseAmount, float arrivalTime, float comparedTime){
 }
 
 // Reads data from File and saves appropriately to vector data.
-void readShipFile(vector<ColonyShip *> * ptrAllColonyShips,
+bool readShipFile(vector<ColonyShip *> * ptrAllColonyShips,
 		vector<SolarSailShip *> * ptrAllSolarSailShips,
 		vector<MilitaryEscortShip *> * ptrAllMilitaryEscortShips,
 		vector<MedicShip *> * ptrAllMedicShips,
@@ -59,12 +59,16 @@ void readShipFile(vector<ColonyShip *> * ptrAllColonyShips,
     			}
     		}
         }
+        myfile.close();
+        return true;
     }
     else{
     	cout << "[Announcement] "<< "Sorry commander. It seems your file is not found.";
+        myfile.close();
+        return false;
     }
 
-    myfile.close();
+
 }
 
 // Interacts with user to create a Fleet.
@@ -82,23 +86,32 @@ Fleet* userInterfaceCreateFleet(vector<ColonyShip *> * ptrAllColonyShips ,
 			if(decision.at(0) == 'y'){
 				cout << "Understood. Searching for your file." << endl;
 
-				readShipFile(ptrAllColonyShips,ptrAllSolarSailShips,ptrAllMilitaryEscortShips,ptrAllMedicShips,corporationName);
+				bool foundFile = readShipFile(ptrAllColonyShips,ptrAllSolarSailShips,ptrAllMilitaryEscortShips,ptrAllMedicShips,corporationName);
 				Fleet * fleet = new Fleet(ptrAllColonyShips,ptrAllSolarSailShips,ptrAllMilitaryEscortShips,ptrAllMedicShips,corporationName);
-				fleet->validify();
-
-				cout << "[Announcement] Review Over. "<< "Cost of your fleet is : " << fleet->getCost() << endl;
-				cout << "[Announcement] Review Over. "<< "Your fleet has enough energy to run" << endl;
-
-				if(!fleet->isDisqualified()){
-					cout << "[Announcement] "<< "Good Luck! " << corporationName << " , your fleet is valid and verified." << endl;
+				if(foundFile){
+					fleet->validify();
+					cout << "[Announcement] Review Over. "<< "Cost of your fleet is : " << fleet->getCost() << endl;
+					if(!fleet->isDisqualified()){
+										cout << "[Announcement] Review Over. "<< "Your fleet has enough energy to run" << endl;
+										cout << "[Announcement] "<< "Good Luck! " << corporationName << " , your fleet is valid and verified." << endl;
+									}
+									else{
+										cout << "[Announcement] Review Over. "<< "Your fleet has NOT enough energy to run" << endl;
+										cout << "[Announcement] "<< "Sorry commander. Unfortunately your fleet appears to be invalid ! " << endl;
+										cout << "[Announcement] " << corporationName << " Please check your fleet again. It must be within budget and have enough energy." << endl;
+										fleet->setDisqualified(true);
+									}
+									cout << endl << endl;
 				}
 				else{
-					cout << endl;
-					cout << "[Announcement] "<< "Sorry commander. Unfortunately your fleet appears to be invalid ! " << endl;
-					cout << "[Announcement] " << corporationName << " Please check your fleet again. It must be within budget and have enough energy." << endl;
 					fleet->setDisqualified(true);
 				}
-				cout << endl << endl;
+
+
+
+
+
+
 				return fleet;
 			}
 			else{
@@ -159,13 +172,14 @@ Fleet* userInterfaceCreateFleet(vector<ColonyShip *> * ptrAllColonyShips ,
 				cout << endl;
 				Fleet * fleet = new Fleet(ptrAllColonyShips,ptrAllSolarSailShips,ptrAllMilitaryEscortShips,ptrAllMedicShips,corporationName);
 				fleet->validify();
+				cout << "[Announcement] Review Over. "<< "Cost of your fleet is : " << fleet->getCost() << endl;
 				if(!fleet->isDisqualified()){
-					cout << "[Announcement] Review Over. "<< "Cost of your fleet is : " << fleet->getCost() << endl;
 					cout << "[Announcement] Review Over. "<< "Your fleet has enough energy to run" << endl;
 					cout << "[Announcement] "<< "Good Luck! " << corporationName << " , your fleet is valid and verified." << endl;
 				}
 				else{
 					cout << endl;
+					cout << "[Announcement] Review Over. "<< "Your fleet has NOT enough energy to run" << endl;
 					cout << "[Announcement] "<< "Sorry commander. Unfortunately your fleet appears to be invalid ! " << endl;
 					cout << "[Announcement] " << corporationName << " Please check your fleet again. It must be within budget and have enough energy." << endl;
 					fleet->setDisqualified(true);
@@ -182,7 +196,6 @@ Fleet* startRace(vector<Fleet *> allFleets){
 		if(allFleets.at(i)->isDisqualified()){
 					cout << endl << "[Announcement] "<<allFleets.at(i)->getCorporationName() <<" is disqualified.";
 					allFleets.erase(allFleets.begin() + i);
-					cout << i;
 		}
 		else{
 			allFleets.at(i)->launchFleet();
